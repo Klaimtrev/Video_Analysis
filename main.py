@@ -2,6 +2,12 @@ from ast import Return
 from pytube import YouTube
 import threading, time
 from logger import Logger
+from audioExtractor import AudioExtractor
+from audioTranscriber import AudioTranscriber
+
+#to check the downloaded videos
+from os import listdir
+from os.path import isfile, join
 
 limiter = threading.BoundedSemaphore(5)
 data_lock = threading.Lock() # mutex
@@ -36,7 +42,42 @@ with open("video_urls.txt", "r") as f:
 #    download_video(i)
 
 ## Parallel Download videos from the list
+threads = []
 for i in range(len(url_list)):
-    threading.Thread(target=download_video, args=(url_list[i],i,)).start()
+    thread = threading.Thread(target=download_video, args=(url_list[i],i,))
+    threads.append(thread)
+    thread.start()
+    #AudioExtractor(url_list[i])
 
 
+# Wait for all threads to complete
+for thread in threads:
+    thread.join()
+
+#check the videofiles
+videofiles = [f for f in listdir('video_output') if isfile(join('video_output', f))]
+audioExtracted = []
+
+#Serially extract audio from the downloaded videos
+for video in videofiles:
+    thread_audioExtractor = AudioExtractor()
+    video_path = join("video_output", video)  # Ensure full path is passed
+    try:
+        audioExtracted.append(thread_audioExtractor.extractAudio(video_path))
+    except Exception as e:
+        print(f"Error extracting audio from {video_path}: {e}")
+
+print(audioExtracted)
+
+#Save location of transcribed audios
+
+transcribedAudio = []
+
+#Serially transcribe the audio files
+for audio in audioExtracted:
+    thread_audioTranscribed = AudioTranscriber()
+    #text_path = join("extracted_audio",audio)
+    try:
+        transcribedAudio.append(thread_audioTranscribed.transcribe(audio))
+    except Exception as e:
+        print(f"Error transcribing audio from {audio}: {e}")

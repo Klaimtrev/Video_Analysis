@@ -1,3 +1,20 @@
 #videos
-/.mp4
-/video_output
+*.mp4
+#audio
+*.wav
+#text
+*.txt
+
+
+# Ignore node_modules directory
+node_modules/
+
+# Ignore log files
+*.log
+
+# Ignore Python compiled files
+__pycache__/
+*.py[cod]
+# Ignore temporary files
+*.tmp
+*.swp
