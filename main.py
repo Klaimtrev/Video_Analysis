@@ -5,6 +5,8 @@ from logger import Logger
 from audioExtractor import AudioExtractor
 from audioTranscriber import AudioTranscriber
 from sentimentAnalyser import SentimentAnalysis
+from translator import SpanishTranslator
+from emotionExtractor import EmotionExtractor
 
 #to check the downloaded videos
 from os import listdir
@@ -110,3 +112,20 @@ for text in transcribedAudio:
         print(f"Error sentiment analysis audio from {text}: {e}")
 
 print(sentimentAnalysis)
+
+translatedText = []
+#Serially translating text to spanish
+for text in transcribedAudio:
+    thread_translatingText = SpanishTranslator()
+    try:
+        translatedText.append(thread_translatingText.translate(text))
+    except Exception as e:
+        print(f"Error translating from {text}: {e}")
+
+#Serially extracting emotions from text
+for text in transcribedAudio:
+    thread_emotionExtractor = EmotionExtractor()
+    try:
+        translatedText.append(thread_emotionExtractor.extractEmotions(text))
+    except Exception as e:
+        print(f"Error extracting emotions from {text}: {e}")
