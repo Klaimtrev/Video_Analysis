@@ -4,6 +4,7 @@ import threading, time
 from logger import Logger
 from audioExtractor import AudioExtractor
 from audioTranscriber import AudioTranscriber
+from sentimentAnalyser import SentimentAnalysis
 
 #to check the downloaded videos
 from os import listdir
@@ -42,16 +43,16 @@ with open("video_urls.txt", "r") as f:
 #    download_video(i)
 
 ## Parallel Download videos from the list
-threads = []
+downloadThreads = []
 for i in range(len(url_list)):
     thread = threading.Thread(target=download_video, args=(url_list[i],i,))
-    threads.append(thread)
+    downloadThreads.append(thread)
     thread.start()
     #AudioExtractor(url_list[i])
 
 
 # Wait for all threads to complete
-for thread in threads:
+for thread in downloadThreads:
     thread.join()
 
 #check the videofiles
@@ -74,10 +75,38 @@ print(audioExtracted)
 transcribedAudio = []
 
 #Serially transcribe the audio files
-for audio in audioExtracted:
+'''for audio in audioExtracted:
     thread_audioTranscribed = AudioTranscriber()
     #text_path = join("extracted_audio",audio)
     try:
         transcribedAudio.append(thread_audioTranscribed.transcribe(audio))
     except Exception as e:
         print(f"Error transcribing audio from {audio}: {e}")
+'''
+#Parallel transcribe the audio files
+transcribeThreads = []
+for i in range(len(audioExtracted)):
+    thread = threading.Thread(target=AudioTranscriber().transcribe, args=(audioExtracted[i],transcribedAudio,))
+    transcribeThreads.append(thread)
+    thread.start()
+
+
+# Wait for all threads to complete
+for thread in transcribeThreads:
+    thread.join()
+
+print(f"THE TRANSCRIBED AUDIO PATHTS ARE: {transcribedAudio}")
+#Save location of sentiment analysis
+
+sentimentAnalysis = []
+
+#Serially sentiment analysis the text files
+for text in transcribedAudio:
+    thread_sentimentAnalysis = SentimentAnalysis()
+    #text_path = join("extracted_audio",audio)
+    try:
+        sentimentAnalysis.append(thread_sentimentAnalysis.analyseSentiment(text))
+    except Exception as e:
+        print(f"Error sentiment analysis audio from {text}: {e}")
+
+print(sentimentAnalysis)

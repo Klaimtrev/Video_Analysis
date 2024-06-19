@@ -10,7 +10,7 @@ class AudioExtractor:
 
     #replace the mp4 extension with wav
     def replaceMP4(self,str):
-        return str[:-3] + '.wav' if str.endswith('.mp4') else str
+        return str[:-4] + '.wav' if str.endswith('.mp4') else str
 
     #Extract the audio from the video
     def extractAudio(self, videoPath):
