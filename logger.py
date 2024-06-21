@@ -11,7 +11,7 @@ class Logger:
     
     def recordData(self):
         with open('download_log.txt', 'a') as file:
-            file.write(f"Name of video: {self.videoName} thread #: {self.thread} Time: {self.timeStamp} URL: {self.URL}\n")
+            file.write(f"Timestamp: {self.timeStamp} Name of video: {self.videoName} Download by thread #: {self.thread} URL: {self.URL} Download: {self.Downloaded}\n")
 
 
 

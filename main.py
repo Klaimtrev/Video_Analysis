@@ -1,6 +1,6 @@
 from ast import Return
 from pytube import YouTube
-import threading, time
+import threading, datetime
 from logger import Logger
 from audioExtractor import AudioExtractor
 from audioTranscriber import AudioTranscriber
@@ -22,8 +22,9 @@ def download_video(url, index):
     print(f"Thread {index}: Downloading video: {yt.title}")
     stream.download(output_path="video_output")
     print(f"Thread {index} : Download completed: {yt.title}")
-    current_timestamp = time.time()
-    thread_log = Logger(yt.title,index,current_timestamp,url,"Completed")
+    current_timestamp = datetime.datetime.now()
+    current_timestamp = current_timestamp.strftime('%H:%M, %d %B %Y')
+    thread_log = Logger(yt.title,index,current_timestamp,url,True)
     print(thread_log.getData())
     data_lock.acquire()
     thread_log.recordData()
@@ -35,7 +36,7 @@ def download_video(url, index):
 ## READ URLs from video_urls.txt and put them on a list
 
 url_list = []
-with open("video_urls.txt", "r") as f:
+with open("Video_Analysis/video_urls.txt", "r") as f:
     for line in f:
         url_list.append(line)
 
