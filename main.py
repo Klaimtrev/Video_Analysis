@@ -8,12 +8,15 @@ from sentimentAnalyser import SentimentAnalysis
 from translator import SpanishTranslator
 from emotionExtractor import EmotionExtractor
 
+import time
+
 #to check the downloaded videos
 from os import listdir
 from os.path import isfile, join
 
 limiter = threading.BoundedSemaphore(5)
 data_lock = threading.Lock() # mutex
+start_time = time.time()
 
 def download_video(url, index):
     limiter.acquire()
@@ -32,6 +35,17 @@ def download_video(url, index):
     limiter.release()
     Return
 
+def download_video_sequentially(url, index):
+    yt = YouTube(url)
+    stream = yt.streams.get_highest_resolution()
+    print(f"Thread {index}: Downloading video: {yt.title}")
+    stream.download(output_path="video_output")
+    print(f"Thread {index}: Download completed: {yt.title}")
+    current_timestamp = datetime.datetime.now()
+    current_timestamp = current_timestamp.strftime('%H:%M, %d %B %Y')
+    tlog = Logger(yt.title, index, current_timestamp, url, True)
+    print(tlog.getData())
+    tlog.recordData()
 
 ## READ URLs from video_urls.txt and put them on a list
 
@@ -46,9 +60,10 @@ with open("video_urls.txt", "r") as f:
                 file.write("")
 
 ## Serially Download videos from the list
-
+#count = 0
 #for i in url_list:
-#    download_video(i)
+#    download_video_sequentially(i,count)
+#    count +=1
 
 ## Parallel Download videos from the list
 downloadThreads = []
@@ -60,6 +75,11 @@ for i in range(len(url_list)):
 # Wait for all threads to complete
 for thread in downloadThreads:
     thread.join()
+
+end_time = time.time()
+execution_time = end_time - start_time
+
+print(f"Total execution time: {execution_time} seconds")
 
 #check the videofiles
 videofiles = [f for f in listdir('video_output') if isfile(join('video_output', f))]

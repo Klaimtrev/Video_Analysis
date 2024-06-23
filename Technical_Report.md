@@ -13,6 +13,8 @@ To enhance efficiency and manage concurrent tasks, the project employs multithre
   - [Summary](#summary)
   - [Table of Contents](#table-of-contents)
   - [Download\_URL](#download_url)
+    - [Description](#description)
+    - [Time and Space Complexity](#time-and-space-complexity)
   - [Download\_Log](#download_log)
   - [Video\_Analysis](#video_analysis)
     - [Extract\_Audio](#extract_audio)
@@ -22,6 +24,8 @@ To enhance efficiency and manage concurrent tasks, the project employs multithre
     - [Extract\_Emotions](#extract_emotions)
 
 ## Download_URL
+
+### Description
 
 First i used a sequential script to download each video from the urls I saved in [video_urls.txt](Video_Analysis\video_urls.txt).
 The following code saves all the urls in a list:
@@ -74,6 +78,12 @@ for i in range(len(url_list)):
 for thread in downloadThreads:
     thread.join()
 ```
+
+### Time and Space Complexity
+
+To measure the performance of both the sequential and parallel code I used the timeit library.
+The sequential code took 11.55 seconds to download all the 15 videos.
+The parallel code took 19.53848361968994 seconds seconds to download all the 15 videos.
 ## Download_Log
 
 I created a different class called [Logger](Video_Analysis\logger.py). It captures information about each downloaded video including: the video name, the thread that downloaded it, the timestamp of the download, the URL of the video, and whether the download was successful. It also saves all this information in a text file called [download_log.txt](Video_Analysis\download_log.txt)
@@ -136,7 +146,7 @@ for thread in audioExtractThreads:
 ```
 Here I realized that using thread.join is very important because even though I can initialize threads without it, it makes sure that the threads complete their tasks before running the next line of code. I also would like to mention that extracting the audio from video did not seem to be heavyweight for my machine so I decided to keep using threads instead of processses.
 
-My class audioExtractor is very simple:
+My class [AudioExtractor](emotionExtractor.py) is very simple:
 ```
 import moviepy.editor as mp
 import os
@@ -172,150 +182,15 @@ Finally the method to extract the Audio  uses the path of the video file to get 
 The other classes are very similar to this one.
 
 ### Transcribe_Audio
-The class audioTranscriber writes the text based on an audio file and saves the result in a folder. I got a lot of problems using the library needed for this since Google Web Speech API told me that there were some bad requests for some files but I fixed it by limiting the duration of the audio files to only 3 minutes. I used threats for this class as well since it relies in remote processing and not local processing power.
-```
-import speech_recognition as sr
-import os
-
-class AudioTranscriber():
-    def __init__(self):
-        self.output_folder = "transcribed_Text"
-        # Create the folder if it does not exist
-        if not os.path.exists(self.output_folder):
-            os.makedirs(self.output_folder)
-
-    def replaceWAVtoTXT(self, str):
-        return str[:-4] + '.txt' if str.endswith('.wav') else str
-    
-    def transcribe(self, audio_file, listOfPaths):
-        recognizer = sr.Recognizer()
-        name = os.path.basename(audio_file)
-        try:
-            with sr.AudioFile(audio_file) as source:
-                audio = recognizer.record(source)
-            # Transcribe audio to text using Google Web Speech API
-            text = recognizer.recognize_google(audio)
-            text_path = os.path.join(self.output_folder, self.replaceWAVtoTXT(name))
-            with open(text_path, 'w') as file:
-                file.write(text)
-            print(f'Text has been written to {text_path}')
-            listOfPaths.append(text_path)
-            return text_path
-        except sr.RequestError as e:
-            # API was unreachable or unresponsive
-            print(f"Could not request results from Google Web Speech API; {e} Name of the file {audio_file}")
-        except sr.UnknownValueError:
-            # Speech was unintelligible
-            print("Google Web Speech API could not understand audio")
-```
+The class [AudioTranscriber](audioTranscriber.py) writes the text based on an audio file and saves the result in a folder. I got a lot of problems using the library needed for this since Google Web Speech API told me that there were some bad requests for some files but I fixed it by limiting the duration of the audio files to only 3 minutes. I used threats for this class as well since it relies in remote processing and not local processing power.
 
 The code is very similar to the previous class but this time instead of saving it as a .wav file it changes it to txt and uses the speech_recognition library to extract the text from the audio.
 
 ### Sentiment_Analysis
-It performs sentiment analysis on text files. It reads text content from a file, analyzes the sentiment using the TextBlob library, and saves the sentiment results to a new file.
-```
-from textblob import TextBlob
-import os
+[SentimentAnalyser](sentimentAnalyser.py) performs sentiment analysis on text files. It reads text content from a file, analyzes the sentiment using the TextBlob library, and saves the sentiment results to a new file.
 
-class SentimentAnalysis():
-
-    def __init__(self):
-        self.output_folder = "sentiment_analysis"
-        # Create the folder if it does not exist
-        if not os.path.exists(self.output_folder):
-            os.makedirs(self.output_folder)
-
-    def replaceTXTtoSentimentTXT(self, str):
-        return str[:-4] + 'sentiment.txt' if str.endswith('.txt') else str
-    
-
-    def analyseSentiment(self,text_file):
-        try:
-            with open(text_file, "r") as file:
-                content = file.read()
-            blob = TextBlob(content)
-            text_path = os.path.join(self.output_folder, self.replaceTXTtoSentimentTXT(os.path.basename(text_file)))
-            with open(text_path, "w+") as f:
-                f.write("Polarity = " + str(blob.sentiment.polarity) + " Subjectivity = " + str(blob.sentiment.subjectivity))
-            print(f'Sentiment analysis saved to {text_path}')
-            return text_path
-        except FileNotFoundError as e:
-            print(f"Error analyzing sentiment from {text_file}: {e}")
-
-        #return text_path
-
-
-```
 ### Translate_Text
-In the translator file there is a SpanishTranslator class that uses the Google Translate API through the googletrans library. I tried to use TextBlob but it didnt work.
-```
-from textblob import TextBlob
-#I got an error using textblob so I used googletrans instead
-from googletrans import Translator
-import os
+In the [Tranlator](translator.py) file there is a SpanishTranslator class that uses the Google Translate API through the googletrans library. I tried to use TextBlob but it didnt work.
 
-
-class SpanishTranslator:
-    def __init__(self):
-        self.output_folder = "translated_text"
-        # Create the folder if it does not exist
-        if not os.path.exists(self.output_folder):
-            os.makedirs(self.output_folder)
-
-    def replaceTXTtoTranslatedTXT(self, str):
-        return str[:-4] + '_translated.txt' if str.endswith('.txt') else str
-
-    def translate(self, text_file):
-        try:
-            translator = Translator()
-            with open(text_file, "r") as file:
-                content = file.read()
-            #blob = TextBlob(content)
-            translated = translator.translate(content, src='en', dest='es')
-            translated_text = translated.text
-            text_path = os.path.join(self.output_folder, self.replaceTXTtoTranslatedTXT(os.path.basename(text_file)))
-            with open(text_path, "w+") as f:
-                f.write(translated_text)
-            print(f'Translated text saved to {text_path}')
-            return text_path
-        except FileNotFoundError as e:
-            print(f"Error translating text from {text_file}: {e}")
-```
 ### Extract_Emotions
-Finally my emotionExtractor class analyzes the emotions in a text file and save the results to a new file. This class uses libraries like spaCy for natural language processing, nltk for tokenization, and NRCLex for emotion detection. At the beginning of running the code it downloads the punkt package.
-```
-import spacy,nltk
-import os
-from nrclex import NRCLex
-nlp = spacy.load('en_core_web_sm')
-nltk.download('punkt')
-
-
-class EmotionExtractor():
-    def __init__(self):
-        self.output_folder = "emotions_detected"
-        # Create the folder if it does not exist
-        if not os.path.exists(self.output_folder):
-            os.makedirs(self.output_folder)
-
-    def replaceTXTtoEmotionTXT(self, str):
-        return str[:-4] + '_emotion.txt' if str.endswith('.txt') else str
-    
-    def extractEmotions(self, text_file):
-        try:
-            with open(text_file, "r") as file:
-                content = file.read()
-            doc = nlp(content)
-            full_text = ' '.join([sent.text for sent in doc.sents])
-            emotion = NRCLex(content)
-            text_path = os.path.join(self.output_folder, self.replaceTXTtoEmotionTXT(os.path.basename(text_file)))
-             # Convert the emotion frequencies to a formatted string
-            emotion_frequencies_str = "\n".join([f"{emotion}: {frequency}" for emotion, frequency in emotion.affect_frequencies.items()])
-            with open(text_path, "w+") as f:
-                f.write("Detected Emotions and Frequencies:\n")
-                f.write(emotion_frequencies_str)
-            print(f'Emotions saved to {text_path}')
-            return text_path
-        except FileNotFoundError as e:
-            print(f"Error extracting emotions from {text_file}: {e}")
-```
+Finally my [Emotion extractor](emotionExtractor.py) class analyzes the emotions in a text file and save the results to a new file. This class uses libraries like spaCy for natural language processing, nltk for tokenization, and NRCLex for emotion detection. At the beginning of running the code it downloads the punkt package.
