@@ -3,7 +3,7 @@
 
 ## Summary
 
-The project demonstrates a systematic approach to processing videos through various stages including downloading, extracting audio, transcription, sentiment analysis, translation, and emotion detection. Each stage is supported by a dedicated Python class, leveraging libraries like moviepy, speech_recognition, TextBlob, googletrans, spaCy, nltk, and NRCLex to achieve the desired transformations and analyses.
+The project succesfully completes all the processing tasks for videos including downloading, extracting audio, transcription, sentiment analysis, translation, and emotion detection. Each stage is supported by a dedicated Python class, leveraging libraries like moviepy, speech_recognition, TextBlob, googletrans, spaCy, nltk, and NRCLex to achieve the desired transformations and analyses.
 
 To enhance efficiency and manage concurrent tasks, the project employs multithreading, a semaphore to limit concurrent downloads, and a mutex to ensure synchronized access to shared resources. This modular design and use of advanced programming techniques make the code more organized, understandable, and efficient.
 
@@ -84,6 +84,10 @@ for thread in downloadThreads:
 To measure the performance of both the sequential and parallel code I used the timeit library.
 The sequential code took 11.55 seconds to download all the 15 videos.
 The parallel code took 19.53848361968994 seconds seconds to download all the 15 videos.
+
+The time complexity of both algorithms is linear, O(n), since they have to go trough all the urls that are saved in a list.
+
+However the space complexity of the parallel code is O(n) since it has to create a new thread for each video that is downloaded while the space complexity of the sequential code is O(1) since it only uses variables and no lists.
 ## Download_Log
 
 I created a different class called [Logger](Video_Analysis\logger.py). It captures information about each downloaded video including: the video name, the thread that downloaded it, the timestamp of the download, the URL of the video, and whether the download was successful. It also saves all this information in a text file called [download_log.txt](Video_Analysis\download_log.txt)
