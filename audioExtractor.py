@@ -13,10 +13,11 @@ class AudioExtractor:
         return str[:-4] + '.wav' if str.endswith('.mp4') else str
 
     #Extract the audio from the video
-    def extractAudio(self, videoPath):
+    def extractAudio(self, videoPath,audioExtracted):
         video = mp.VideoFileClip(videoPath)
         name = video.filename
         name = os.path.basename(video.filename)  # Get the base name of the file
         audio_path = os.path.join(self.output_folder, self.replaceMP4(name))  # Create the path in the "extracted_audio" folder
         video.audio.write_audiofile(audio_path)
+        audioExtracted.append(audio_path)
         return audio_path

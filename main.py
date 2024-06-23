@@ -51,8 +51,6 @@ for i in range(len(url_list)):
     thread = threading.Thread(target=download_video, args=(url_list[i],i,))
     downloadThreads.append(thread)
     thread.start()
-    #AudioExtractor(url_list[i])
-
 
 # Wait for all threads to complete
 for thread in downloadThreads:
@@ -61,7 +59,8 @@ for thread in downloadThreads:
 #check the videofiles
 videofiles = [f for f in listdir('video_output') if isfile(join('video_output', f))]
 audioExtracted = []
-
+audioExtractThreads = []
+'''
 #Serially extract audio from the downloaded videos
 for video in videofiles:
     thread_audioExtractor = AudioExtractor()
@@ -70,6 +69,17 @@ for video in videofiles:
         audioExtracted.append(thread_audioExtractor.extractAudio(video_path))
     except Exception as e:
         print(f"Error extracting audio from {video_path}: {e}")
+'''
+#Parallel extract audio from the downloaded videos
+for i in range(len(videofiles)):
+    video_path = join("video_output", videofiles[i])  # Ensure full path is passed
+    thread = threading.Thread(target=AudioExtractor().extractAudio, args=(video_path,audioExtracted,))
+    audioExtractThreads.append(thread)
+    thread.start()
+
+# Wait for all threads to complete
+for thread in audioExtractThreads:
+    thread.join()
 
 print(audioExtracted)
 

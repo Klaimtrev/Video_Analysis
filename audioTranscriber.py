@@ -27,7 +27,7 @@ class AudioTranscriber():
             return text_path
         except sr.RequestError as e:
             # API was unreachable or unresponsive
-            print(f"Could not request results from Google Web Speech API; {e}")
+            print(f"Could not request results from Google Web Speech API; {e} Name of the file {audio_file}")
         except sr.UnknownValueError:
             # Speech was unintelligible
             print("Google Web Speech API could not understand audio")
