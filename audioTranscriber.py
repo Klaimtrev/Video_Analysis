@@ -16,7 +16,7 @@ class AudioTranscriber():
         name = os.path.basename(audio_file)
         try:
             with sr.AudioFile(audio_file) as source:
-                audio = recognizer.record(source)
+                audio = recognizer.record(source, duration=180)
             # Transcribe audio to text using Google Web Speech API
             text = recognizer.recognize_google(audio)
             text_path = os.path.join(self.output_folder, self.replaceWAVtoTXT(name))
@@ -25,9 +25,6 @@ class AudioTranscriber():
             print(f'Text has been written to {text_path}')
             listOfPaths.append(text_path)
             return text_path
-        except sr.RequestError as e:
-            # API was unreachable or unresponsive
-            print(f"Could not request results from Google Web Speech API; {e} Name of the file {audio_file}")
-        except sr.UnknownValueError:
-            # Speech was unintelligible
-            print("Google Web Speech API could not understand audio")
+        except Exception as e:
+            # Catch any other exceptions and log them
+            print(f"An error occurred: {e} Name of the file {audio_file}")

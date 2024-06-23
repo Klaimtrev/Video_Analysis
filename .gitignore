@@ -18,3 +18,6 @@ __pycache__/
 # Ignore temporary files
 *.tmp
 *.swp
+
+# Ignore project instructions
+Project1.pdf

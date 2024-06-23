@@ -1,6 +1,6 @@
 from ast import Return
 from pytube import YouTube
-import threading, datetime
+import threading, datetime, os
 from logger import Logger
 from audioExtractor import AudioExtractor
 from audioTranscriber import AudioTranscriber
@@ -36,9 +36,14 @@ def download_video(url, index):
 ## READ URLs from video_urls.txt and put them on a list
 
 url_list = []
-with open("Video_Analysis/video_urls.txt", "r") as f:
+with open("video_urls.txt", "r") as f:
     for line in f:
         url_list.append(line)
+
+# Clear the Log file if it exists
+        if os.path.exists('download_log.txt'):
+            with open('download_log.txt', 'w') as file:
+                file.write("")
 
 ## Serially Download videos from the list
 

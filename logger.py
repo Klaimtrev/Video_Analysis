@@ -8,11 +8,6 @@ class Logger:
         self.URL = URL
         self.Downloaded = Downloaded
 
-        # Clear the file if it exists
-        if os.path.exists('download_log.txt'):
-            with open('download_log.txt', 'w') as file:
-                file.write("")
-
 
     def getData(self):
         return self.videoName,self.thread,self.timeStamp,self.URL,self.Downloaded
