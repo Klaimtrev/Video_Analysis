@@ -1,15 +1,17 @@
 # Big Data Analytics 2024 Project 1
 # Technical Report
+# By Diego Minaya
 
 ## Summary
 
-The project succesfully completes all the processing tasks for videos including downloading, extracting audio, transcription, sentiment analysis, translation, and emotion detection. Each stage is supported by a dedicated Python class, leveraging libraries like moviepy, speech_recognition, TextBlob, googletrans, spaCy, nltk, and NRCLex to achieve the desired transformations and analyses.
+The project succesfully completes all the processing tasks for videos including downloading, extracting audio, transcription, sentiment analysis, translation, and emotion detection. Each stage is supported by a dedicated Python class, leveraging libraries like moviepy, speech_recognition, TextBlob, googletrans, spaCy, nltk, and NRCLex.
 
-To enhance efficiency and manage concurrent tasks, the project employs multithreading, a semaphore to limit concurrent downloads, and a mutex to ensure synchronized access to shared resources. This modular design and use of advanced programming techniques make the code more organized, understandable, and efficient.
+To enhance efficiency and manage concurrent tasks, the project employs multithreading, a semaphore to limit concurrent downloads, and a mutex to ensure the safe access to shared resources.
 
 ## Table of Contents
 - [Big Data Analytics 2024 Project 1](#big-data-analytics-2024-project-1)
 - [Technical Report](#technical-report)
+- [By Diego Minaya](#by-diego-minaya)
   - [Summary](#summary)
   - [Table of Contents](#table-of-contents)
   - [Download\_URL](#download_url)
@@ -35,13 +37,7 @@ with open("Video_Analysis/video_urls.txt", "r") as f:
     for line in f:
         url_list.append(line)
 ```
-And then the following code calls the function to download a video where each video is passed.
-```
-for i in url_list:
-    download_video(i)
-```
-
-However to use parallel programming, I decided to use threads instead of processes since downloading 15 videos do not require much processing power and they can be easily controlled with semaphores ,to limit the number of downloads that happen at the same time, and mutex, to restric access to download_log.txt and provent multiple threads from trying to write to it at the same time. Below you can see my implementation using a mutex and a semaphore:
+To use parallel programming, I decided to use threads instead of processes since downloading 15 videos do not require much processing power and they can be easily controlled with semaphores ,to limit the number of downloads that happen at the same time, and mutex, to restric access to download_log.txt and provent multiple threads from trying to write to it at the same time. Below you can see my implementation using a mutex and a semaphore:
 
 ```
 limiter = threading.BoundedSemaphore(5)
